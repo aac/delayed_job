@@ -152,7 +152,12 @@ module Delayed
     def say(text, level = Logger::INFO)
       text = "[Worker(#{name})] #{text}"
       puts text unless @quiet
-      logger.add level, "#{Time.now.strftime('%FT%T%z')}: #{text}" if logger
+      if logger.is_a? Log4r::Logger
+        log_level = Log4r::Log4rConfig::LogLevels[level]
+        logger.send(log_level.downcase, "#{Time.now.strftime('%FT%T%z')}: #{text}") if logger
+      else
+        logger.add level, "#{Time.now.strftime('%FT%T%z')}: #{text}" if logger
+      end
     end
 
   protected
